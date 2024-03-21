@@ -7,36 +7,59 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:test")) {
-            createTable(connection);
-            insertValues(connection);
-            selectValues(connection);
-            System.out.println("-----------------------");
-            updateValues(connection);
-            selectValues(connection);
-            System.out.println("-----------------------");
-            deleteValues(connection);
-            selectValues(connection);
+//        connectToH2();
 
+        /**
+         * Настройка PostgreSQL
+         * в BASH: sudo -i -u postgres
+         * в BASH: psql
+         * в POSTGRESQL: create user test with password 'test' superuser;
+         * в POSTGRESQL: create database test;
+         * Теперь есть пользователь test с паролем test,
+         * и есть база данных test
+         */
+
+        try (Connection connection = DriverManager.getConnection(
+                "jdbc:postgresql://localhost/test",
+                "test",
+                "test")) {
+            createTableInPostgreSQL(connection);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void connectToH2() {
+        try (Connection connection = DriverManager.getConnection("jdbc:h2:mem:test")) {
+            createTableInH2(connection);
+            insertValuesInH2(connection);
+            selectValuesInH2(connection);
+            System.out.println("-----------------------");
+            updateValuesInH2(connection);
+            selectValuesInH2(connection);
+            System.out.println("-----------------------");
+            deleteValuesInH2(connection);
+            selectValuesInH2(connection);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void deleteValues(Connection connection) throws SQLException {
+    private static void deleteValuesInH2(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("delete from students where age = $1");
         statement.setInt(1, 20);
         statement.execute();
     }
 
-    private static void updateValues(Connection connection) throws SQLException {
+    private static void updateValuesInH2(Connection connection) throws SQLException {
         PreparedStatement statement = connection.prepareStatement("update students set age = $1 where first_name = $2");
         statement.setInt(1, 20);
         statement.setString(2, "Петр");
         statement.execute();
     }
 
-    private static void selectValues(Connection connection) throws SQLException {
+    private static void selectValuesInH2(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("select id, first_name, second_name, age from students");
         while (resultSet.next()) {
@@ -51,7 +74,7 @@ public class Main {
         }
     }
 
-    private static void insertValues(Connection connection) throws SQLException {
+    private static void insertValuesInH2(Connection connection) throws SQLException {
         for (Student student:
              getStudents()) {
             PreparedStatement preparedStatement = connection.prepareStatement(
@@ -65,9 +88,19 @@ public class Main {
         }
     }
 
-    private static void createTable(Connection connection) throws SQLException {
+    private static void createTableInH2(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
         statement.execute(
+                "create table students (id int, first_name varchar(256), second_name varchar(256), age int)"
+        );
+    }
+
+    private static void createTableInPostgreSQL(Connection connection) throws SQLException {
+        connection.createStatement().execute(
+                "drop table students"
+        );
+
+        connection.createStatement().execute(
                 "create table students (id int, first_name varchar(256), second_name varchar(256), age int)"
         );
     }
