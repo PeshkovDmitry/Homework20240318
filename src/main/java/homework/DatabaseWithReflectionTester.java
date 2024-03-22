@@ -16,6 +16,11 @@ public class DatabaseWithReflectionTester {
 
     public void test() {
 
+
+    }
+
+    private void save(Object obj) {
+
     }
 
 

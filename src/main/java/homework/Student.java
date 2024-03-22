@@ -1,13 +1,22 @@
 package homework;
 
+import homework.annotations.Column;
+import homework.annotations.Id;
+import homework.annotations.Table;
+
+@Table(name = "students")
 public class Student {
 
+    @Id
     private int id;
 
+    @Column(name = "first_name")
     private String firstName;
 
+    @Column(name = "second_name")
     private String secondName;
 
+    @Column(name = "age")
     private int age;
 
     public Student() {
