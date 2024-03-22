@@ -4,26 +4,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SimpleDatabaseTester implements DatabaseTester{
+public class SimpleDatabaseTester extends DatabaseTester{
 
     private Connection connection;
 
     private List<Student> students;
 
     public SimpleDatabaseTester(Connection connection, List<Student> students) {
+        super(connection);
         this.connection = connection;
         this.students = students;
-    }
-
-    private void dropTable(Connection connection) throws SQLException {
-        connection.createStatement().execute("drop table if exists students");
-    }
-
-    private void createTable(Connection connection) throws SQLException {
-        Statement statement = connection.createStatement();
-        statement.execute(
-                "create table students (id int, first_name varchar(256), second_name varchar(256), age int)"
-        );
     }
 
     private void insertValues(Connection connection) throws SQLException {
@@ -67,8 +57,6 @@ public class SimpleDatabaseTester implements DatabaseTester{
         statement.setString(2, "Петр");
         statement.execute();
     }
-
-
 
     @Override
     public void test() throws SQLException {
