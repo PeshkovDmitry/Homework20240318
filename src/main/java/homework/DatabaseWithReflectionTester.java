@@ -20,6 +20,11 @@ public class DatabaseWithReflectionTester extends DatabaseTester {
         dropTable(connection);
         createTable(connection);
         ObjectToDatabaseSaver.save(students.get(1), connection);
+        ObjectToDatabaseSaver.update(
+                new Student(6, "Макар", "Гребнев", 22),
+                students.get(1),
+                connection);
+
 
     }
 
