@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ public class ObjectToDatabaseSaver {
                     + ") values ("
                     + String.join(",", fields.values().stream().map(f -> getValueOfField(obj, f)).collect(Collectors.toList())) + ")";
             connection.createStatement().execute(requestString);
-            System.out.println(requestString);
         }
     }
 
@@ -38,25 +38,45 @@ public class ObjectToDatabaseSaver {
                 && oldObjectTableAnnotation != null
                 && !newObjectTableAnnotation.name().isEmpty()
                 && newObjectTableAnnotation.name().equals(oldObjectTableAnnotation.name())) {
+
             String table = newObjectTableAnnotation.name();
-            Map<String, Field> fieldsFromOldObject = getObjectFields(oldObject);
-            Map<String, Field> fieldsFromNewObject = getObjectFields(newObject);
-            fieldsFromNewObject.remove("id");
-            for (String key : fieldsFromNewObject.keySet()) {
-                String requestString = String.format(
-                        "update %s set %s = %s where id = %s",
-                        table,
-                        key,
-                        getValueOfField(newObject, fieldsFromNewObject.get(key)),
-                        getValueOfField(oldObject, fieldsFromOldObject.get("id"))
-                );
-                System.out.println(requestString);
-                connection.createStatement().execute(requestString);
+            int oldObjectId = getIdForObject(oldObject, connection);
+            if (oldObjectId != -1) {
+                Map<String, Field> fieldsFromNewObject = getObjectFields(newObject);
+                fieldsFromNewObject.remove("id");
+                for (String key : fieldsFromNewObject.keySet()) {
+                    String requestString = String.format(
+                            "update %s set %s = %s where id = %s",
+                            table,
+                            key,
+                            getValueOfField(newObject, fieldsFromNewObject.get(key)),
+                            oldObjectId
+                    );
+                    connection.createStatement().execute(requestString);
+                }
+            } else {
+                save(newObject, connection);
             }
         }
     }
 
-
+    private static int getIdForObject(Object obj, Connection connection) throws SQLException {
+        String table = obj.getClass().getAnnotation(Table.class).name();
+        Map<String, Field> fields = getObjectFields(obj);
+        fields.remove("id");
+        List<String> parts = new ArrayList<>();
+        for (String key :
+                fields.keySet()) {
+            parts.add(key + " = " + getValueOfField(obj, fields.get(key)));
+        }
+        String request = "select id from " + table
+                + " where " + String.join(" and ", parts);
+        ResultSet resultSet = connection.createStatement().executeQuery(request);
+        if (resultSet.next()) {
+            return resultSet.getInt(1);
+        }
+        return -1;
+    }
 
 
     private static Map<String, Field> getObjectFields(Object obj) {

@@ -33,10 +33,10 @@ public class Main {
 
     public static List<Student> getStudents() {
         List<Student> list = new ArrayList<>();
-        list.add(new Student(1, "Иван", "Иванов", 19));
-        list.add(new Student(2, "Петр", "Петров", 18));
-        list.add(new Student(3, "Татьяна", "Семенова", 19));
-        list.add(new Student(4, "Алла", "Сидорова", 18));
+        list.add(new Student(1, "Ivan", "Ivanov", 19));
+        list.add(new Student(2, "Petr", "Petrov", 18));
+        list.add(new Student(3, "Tatyana", "Semenova", 19));
+        list.add(new Student(4, "Alla", "Sidorova", 18));
         return list;
     }
 

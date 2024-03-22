@@ -19,18 +19,13 @@ public class DatabaseWithReflectionTester extends DatabaseTester {
     public void test() throws SQLException {
         dropTable(connection);
         createTable(connection);
-        ObjectToDatabaseSaver.save(students.get(1), connection);
+        for (Student student :
+                students) {
+            ObjectToDatabaseSaver.save(student, connection);
+        }
         ObjectToDatabaseSaver.update(
-                new Student(6, "Макар", "Гребнев", 22),
+                new Student(6, "Makar", "Grebnev", 22),
                 students.get(1),
                 connection);
-
-
     }
-
-
-
-
-
-
 }
