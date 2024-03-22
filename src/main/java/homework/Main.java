@@ -8,7 +8,8 @@ public class Main {
 
     public static void main(String[] args) {
         try (Connection connection = getPostgreSqlConnection()) {
-            DatabaseTester tester = new SimpleDatabaseTester(connection, getStudents());
+//            DatabaseTester tester = new SimpleDatabaseTester(connection, getStudents());
+            DatabaseTester tester = new DatabaseWithReflectionTester(connection, getStudents());
             tester.test();
         } catch (SQLException e) {
             e.printStackTrace();
